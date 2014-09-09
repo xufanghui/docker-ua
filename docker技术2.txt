@@ -1,0 +1,51 @@
+1.连接技术
+  链接：http://docs.docker.com/userguide/dockerlinks/
+
+
+2.挂载劵
+  docker run -i -t -v /root kelseyhightower/debian:7.2 /bin/bash
+  cd /root/
+  mkdir aa
+  在非容器（主机）上找到相应目录
+  可以看到目录中多了个/var/lib/docker/vfs文件夹
+  新建的文件放到了这里/var/lib/docker/vfs/dir/a8e39dee28cb4edf9462b701cdcc4fd61acb99f38a03375f122153708fccef20/aa
+  /var/lib/dockers/volumns下面也有相应的文件了
+  /var/lib/dockers/volumns/a8e39dee28cb4edf9462b701cdcc4fd61acb99f38a03375f122153708fccef20/*.json
+  它是volumns的配置信息
+
+
+
+3.容器的点对点连接
+  链接：http://docs.docker.com/articles/networking/
+  # Start up two containers in two terminal windows
+
+  $ sudo docker run -i -t --rm --net=none base /bin/bash
+  root@1f1f4c1f931a:/#
+
+  $ sudo docker run -i -t --rm --net=none base /bin/bash
+  root@12e343489d2f:/#
+
+  # Learn the container process IDs
+  # and create their namespace entries
+
+  $ sudo docker inspect -f '{{.State.Pid}}' 1f1f4c1f931a
+  2989
+  $ sudo docker inspect -f '{{.State.Pid}}' 12e343489d2f
+  3004
+  $ sudo mkdir -p /var/run/netns
+··$ sudo ln -s /proc/2989/ns/net /var/run/netns/2989
+··$ sudo ln -s /proc/3004/ns/net /var/run/netns/3004
+
+  # Create the "peer" interfaces and hand them out
+
+  $ sudo ip link add A type veth peer name B
+
+  $ sudo ip link set A netns 2989
+  $ sudo ip netns exec 2989 ip addr add 10.1.1.1/32 dev A
+    $ sudo ip netns exec 2989 ip link set A up
+  $ sudo ip netns exec 2989 ip route add 10.1.1.2/32 dev A
+  
+  $ sudo ip link set B netns 3004
+  $ sudo ip netns exec 3004 ip addr add 10.1.1.2/32 dev B
+  $ sudo ip netns exec 3004 ip link set B up
+  $ sudo ip netns exec 3004 ip route add 10.1.1.1/32 dev B

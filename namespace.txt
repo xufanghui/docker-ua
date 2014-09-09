@@ -1,0 +1,136 @@
+1.namespace实例
+  http://blog.csdn.net/ztejiagn/article/details/36655273
+  内容如下：
+  
+netns是在linux中提供网络虚拟化的一个项目，使用netns网络空间虚拟化可以在本地虚拟化出多个网络环境，目前netns在lxc容器中被用来为容器提供网络。
+使用netns创建的网络空间独立于当前系统的网络空间，其中的网络设备以及iptables规则等都是独立的，就好像进入了另外一个网络一样。
+netns虚拟网络空间的网络通信依赖于物理接口，光讲听上去很虚，我们来操练点实际的看看：
+1.创建虚拟网络空间:
+ip netns add ns1
+这样我们就得到了一个名为ns1的网络空间，虚拟网络空间除了网络是虚的以外，文件系统完全和当前系统共享，也就是说所有本地可以使用的命令都可以在虚拟网络中使用，我们进入ns1看看情况：
+ip netns exec ns1 bash
+ifconfig -a
+~# ifconfig -a
+lo Link encap:Local Loopback
+LOOPBACK MTU:16436 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+可以看到ns1中默认添加了一个本地回路设备，其他神马也没有，下面我们退出ns1，给他添加点网卡，之所以要在外部添加网卡是因为我们要为后面联通网络做准备，
+exit
+ip link add name ns1-nic type veth peer name ns1-vnic
+这里我们添加了一对veth设备，veth设备是成对出现的，两个设备之间的数据是相互贯通的，我们把ns1-vnic加入到ns1网络空间中：
+ip link set ns1-vnic netns ns1
+这样ns1-vnic就进入到ns1空间了，在本地网络中已经无法查看到，我们重新进入ns1看看现在的情况：
+ip netns exec ns1 bash
+# ifconfig -a
+lo Link encap:Local Loopback
+LOOPBACK MTU:16436 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+ns1-vnic Link encap:Ethernet HWaddr 92:69:39:f3:b3:be
+BROADCAST MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+可以看到多出来了一块网卡，虽然网卡名字有点丑，不过网卡名字可以随意修改的，我们改一改：
+ip link set ns1-vnic name eth0
+# ifconfig -a
+eth0 Link encap:Ethernet HWaddr 92:69:39:f3:b3:be
+BROADCAST MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+lo Link encap:Local Loopback
+LOOPBACK MTU:16436 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+刚才把默认的名字修改为了eth0，下面我们给他分配一个private ip address：
+ip addr add 10.0.0.100/24 dev eth0
+然后把它启动起来:
+ip link set eth0 up
+# ifconfig
+eth0 Link encap:Ethernet HWaddr 92:69:39:f3:b3:be
+inet addr:10.0.0.100 Bcast:0.0.0.0 Mask:255.255.255.0
+UP BROADCAST MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:1000
+RX bytes:0 (0.0 B) TX bytes:0 (0.0 B)
+然后我们再把回环起起来，ping一下自己感受一下：
+# ip link set lo up
+root@ubuntu:~# ping 10.0.0.100
+PING 10.0.0.100 (10.0.0.100) 56(84) bytes of data.
+64 bytes from 10.0.0.100: icmp_req=1 ttl=64 time=0.072 ms
+64 bytes from 10.0.0.100: icmp_req=2 ttl=64 time=0.040 ms
+嗷嗷！ping自己通了！那么我们怎么样让ns1中的eth0和真实server中的网络进行通信呢？首先让他能和本地物理机通信，我们在物理机网络中采用桥接的方式，把刚才添加veth虚拟网卡的时候被拆开的一对的剩下一只添加的网桥里面，利用成对veth相互之间数据贯通的特性来实现网络互通：
+先退出ns1，本地添加网桥：
+exit
+brctl addbr testbr
+brctl addif testbr ns1-nic
+ip link set ns1-nic up
+然后给网桥设置一个ip地址：
+ip addr add 10.0.0.1/24 dev testbr
+ ip link set testbr up
+~# ifconfig testbr
+testbr Link encap:Ethernet HWaddr 6a:d1:34:5b:3c:99
+inet addr:10.0.0.1 Bcast:0.0.0.0 Mask:255.255.255.0
+inet6 addr: fe80::68d1:34ff:fe5b:3c99/64 Scope:Link
+UP BROADCAST RUNNING MULTICAST MTU:1500 Metric:1
+RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+TX packets:6 errors:0 dropped:0 overruns:0 carrier:0
+collisions:0 txqueuelen:0
+RX bytes:0 (0.0 B) TX bytes:468 (468.0 B)
+ 
+下面来ping一下ns1中的eth0网卡ip10.0.0.100感受一下：
+~# ping 10.0.0.100
+PING 10.0.0.100 (10.0.0.100) 56(84) bytes of data.
+64 bytes from 10.0.0.100: icmp_req=1 ttl=64 time=0.200 ms
+64 bytes from 10.0.0.100: icmp_req=2 ttl=64 time=0.042 ms
+嗷嗷！又通了！
+我们进入ns1往10.0.0.1来ping一下：
+~# ip netns exec ns1 ping 10.0.0.1
+PING 10.0.0.1 (10.0.0.1) 56(84) bytes of data.
+64 bytes from 10.0.0.1: icmp_req=1 ttl=64 time=0.057 ms
+64 bytes from 10.0.0.1: icmp_req=2 ttl=64 time=0.063 ms
+嗷嗷！是通的！
+但是现在ns1中的网络还访问不到外网，那么如何才能让ns1中的网络可以访问到外面的世界呢？
+有点晚了，请听下回分解！感兴趣的同学可以这里评论留言给我，或者看博客左上方的微博地址给我at一下。:-)
+
+常用的namespace的命令：
+
+1. 添加一个namespace
+sudo ip netns add [name]
+
+
+2. 在namespace中启用一个设备
+sudo ip netns exec   [name]  ip link set lo up
+
+
+3. 在namespace中新加一个设备
+sudo ip link set  [dev-name]   netns  [name]
+启用：
+sudo ip netns exec   [name]  ip link set [dev-name] up
+
+
+4. 查看指定namespace中指定设备的参数信息
+sudo ip netns exec  [name] ip addr show   [dev-name]   permanent scope global
+
+
+5. 为namespace中指定设备设置ip
+sudo ip netns exec   [name]  ip -4 addr add 192.168.1.2/24 brd 192.168.1.255 scope global dev   [dev-name]  
+
+
+6.查看所有network namespace
+ip netns list
+
+
+7.ping虚拟机实例
+ip netns exec [name] ping 192.168.1.3

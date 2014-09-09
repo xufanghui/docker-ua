@@ -1,0 +1,23 @@
+1.限制容器使用的系统资源
+
+  1.限制CPU
+  2.限制内存
+  3.限制设备
+  4.限制磁盘读写等
+  
+2.限制容器的例子
+
+    1.请看，官方链接
+    http://docs.docker.com/articles/runmetrics/
+    2.具体设置的目录放在了
+      1.限制CPU
+      /sys/fs/cgroup/cpu/docker/<容器id>
+      2.限制磁盘读写
+      /sys/fs/cgroup/blkio/docker/<容器id>
+      3.限制内存
+      /sys/fc/cgroup/memory/docker/<容器id>
+      4.限制设备
+      /sys/fc/cgroup/devices/docker/<容器id> 
+     其它
+  
+  

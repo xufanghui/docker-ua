@@ -1,0 +1,5 @@
+1.puppetΩÈ…‹
+  http://baike.baidu.com/view/1794764.htm
+
+2.docker∫Õpuppet¡¨”√
+  http://docs.docker.com/articles/puppet/

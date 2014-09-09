@@ -1,0 +1,48 @@
+1.supervisor
+监控进程
+链接地址：http://blog.chinaunix.net/uid-16426471-id-2743154.html
+内容如下：
+
+在linux下监控进程，可以使用inittab，最近找到了supervisor，也很好用，记录一下：
+1、系统要安装python，并安装与之对应的setuptools，下载地址在此
+2、安装：
+# sh setuptoolsxxxx.egg
+3、安装supervisor，下载地址在此，解压缩后
+# python setup.py install
+这就ok了，然后执行
+# echo_supervisord_conf > /etc/supervisord.conf
+修改/etc/supervisord.conf文件，加入你要监控的进程，里面的注释很详细，举个简单的例子：
+这是一段要监控的进程的描述信息，添加到这个文件的末尾就好了：
+[program:meta.txn.recover.on.error]
+command=/cas/bin/meta.txn.recover.on.error ; 被监控的进程路径
+numprocs=1                    ; 启动几个进程
+directory=/cas/bin                ; 执行前要不要先cd到目录去，一般不用
+autostart=true                ; 随着supervisord的启动而启动
+autorestart=true              ; 自动重启。。当然要选上了
+startretries=10               ; 启动失败时的最多重试次数
+exitcodes=0                 ; 正常退出代码（是说退出代码是这个时就不再重启了吗？待确定）
+stopsignal=KILL               ; 用来杀死进程的信号
+stopwaitsecs=10               ; 发送SIGKILL前的等待时间
+redirect_stderr=true          ; 重定向stderr到stdout
+为了节省空间，注释的内容就不贴出来了。
+执行
+# supervisord -n
+能在控制台看到监控进程的输出：
+2010-08-17 10:26:07,467 INFO supervisord started with pid 943
+2010-08-17 10:26:08,469 INFO spawned: 'meta.txn.recover.on.error' with pid 1009
+2010-08-17 10:26:09,876 INFO success: meta.txn.recover.on.error entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2010-08-17 10:26:48,442 INFO exited: meta.txn.recover.on.error (terminated by SIGKILL; not expected)
+2010-08-17 10:26:49,444 INFO spawned: 'meta.txn.recover.on.error' with pid 2427
+2010-08-17 10:26:50,487 INFO success: meta.txn.recover.on.error entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+黑体的地方是我用kill -9杀掉进程后出来的，看到supervisor检测到进程退出后又再次启动了进程。
+不带参数运行supervisord是以daemon方式运行。
+把supervisord加入到开机启动项里就可以完成监控进程的功能了。
+
+
+【注意】：当supervisord以非daemon方式运行时，杀掉supervisord后，被监控的进程也退出了。
+而以daemon方式运行，杀掉supervisord对被监控进程无影响。
+
+
+
+2.与容器的联合使用
+  http://docs.docker.com/articles/using_supervisord/

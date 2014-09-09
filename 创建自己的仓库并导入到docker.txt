@@ -1,0 +1,25 @@
+创建自己的仓库（最小系统）
+1.下载debootstrap工具
+apt-get install debootstrap
+
+2.打包最小系统并导入到docker中
+  1.下载此工具
+  地址：https://github.com/docker/docker/blob/master/contrib/mkimage-debootstrap.sh
+  2.打包最小系统
+  chmod 755 mkimage-debootstrap.sh
+  ./mkimage-debootstrap.sh -t wheezy-uk.tar.xz wheezy http://ftp.uk.debian.org/debian/
+  mkdir wheezy
+  cp wheezy-uk.tar.xz wheezy/
+  cd wheezy
+  xz -d wheezy
+  tar xvf wheezy-uk.tar
+  rm wheezy-uk.tar
+  cd ..
+  3.导入最小系统到docker中
+  tar -C wheezy -c .|docker import - wheezy
+  出现一个65位的字符串，表示导入成功
+ 
+
+3.运行导入的最小系统
+docker images
+docker -i -t <ID> /bin/bash

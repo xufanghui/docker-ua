@@ -1,0 +1,7 @@
+1.lxc容器
+  链接：http://wenku.baidu.com/link?url=miIYD67tunSxI4plr9pgXJgQYGlPZtz4WeZ1Hmj2HrYg9en4_eUhBfRQdnA450nuqzLIptKpTZlFuxgW-Gis4lx5YIHJZz42NqM2nF7Tb8S
+
+2.riak数据库
+  链接：http://www.ibm.com/developerworks/cn/opensource/os-riak1/
+
+

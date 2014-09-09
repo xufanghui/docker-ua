@@ -1,0 +1,50 @@
+1.查看docker详情
+  docker info
+  输出信息如下：
+    Containers: 13
+    Images: 65
+    Storage Driver: aufs
+    Root Dir: /var/lib/docker/aufs
+    Dirs: 91
+    Execution Driver: native-0.2
+    Kernel Version: 3.2.0-4-amd64
+    Operating System: Debian GNU/Linux 7 (wheezy)
+    WARNING: No memory limit support
+    WARNING: No swap limit support
+
+2.绑定docker服务的端口号
+ 首先请确认docker服务未打开
+ 下面例子绑定tcp协议的8900端口和unix域协议（端口系统随机分配，还是docker分配，需看源代码）
+ docker -H tcp://127.0.0.1:8900 -H unix:///var/run/docker.sock -d
+ 也可以绑定更多个
+ docker -H tcp://127.0.0.1:8900 -H unix:///var/run/docker.sock -H tcp://127.0.0.1:9000 -d
+ 
+3.控制docker容器
+  1.运行docker容器
+  # Start a new container
+  $ JOB=$(sudo docker run -d ubuntu /bin/sh -c "while true; do echo Hello world; sleep 1; done")
+
+  2.查看某个docker日期的日志
+  # Collect the output of the job so far
+  $ docker logs $JOB
+
+  4.停止容器的运行
+  # Stop the container
+  $ docker stop $JOB
+
+  5.开始容器的运行
+  # Start the container
+  $ docker start $JOB
+
+  6.重启容器的运行
+  # Restart the container
+  $ docker restart $JOB
+
+  7.杀死某个容器
+  # SIGKILL a container
+  $ docker kill $JOB
+
+  8.移除某个容器
+  # Remove a container
+  $ docker stop $JOB # Container must be stopped to remove it
+  $ docker rm $JOB
