@@ -6,13 +6,13 @@
   sudo apt-get install -y lxc-docker
 
 ##2.新建虚拟机（容器）
-  ###1.搜索虚拟机，这是从docker hub中搜的
+###1.搜索虚拟机，这是从docker hub中搜的
   命令如下：
   docker search [虚拟机名称]
   如搜索debian系统的虚拟机：
     docker search debian|less
   
-  ###2.下载一个debian虚拟机
+###2.下载一个debian虚拟机
     我下载的是kelseyhightower/debian虚拟机
     docker pull kelseyhightower/debian
  
@@ -27,7 +27,7 @@
     域名：server-54-230-149-71.sin2.r.cloudfront+.net:https
     IP:54.230.149.71:443
   注意:它们之间的通信为json格式，下面是例子，字段名称一目了然
-  {
+	    {
     "id": "34e94e67e63a0f079d9336b3c2a52e814d138e5b3f1f614a0cfe273814ed7c0a",
     "parent": "511136ea3c5a64f264b78b5433614aec563103b4d4702f3ba7d4d2698e22c158",
     "created": "2014-06-05T01:36:59.950625442Z",
@@ -165,7 +165,7 @@
           2.layers   层描述信息，文件可以看到层次关系
           3.mnt     挂载的系统，下面都是以ID号命名的文件夹，有的内部为具体的系统结构      
      
-    ###3.运行此虚拟机
+###3.运行此虚拟机
     docker run -i -t kelseyhightower/debian:7.2 /bin/bash
     1.容器的配置文件夹的命名
         1.它在/var/lib/docker/contains下，
@@ -177,14 +177,13 @@
     容器的配置文件，包括6中，分别如下：
     1.配置信息
       config.json
-      内容如下：
+      	内容如下：
        {
         "ID": "633710bf0be63b61affe60c8c8de374dc956e73400e0aca23efe3b870583950d",
         "Created": "2014-09-06T10:53:26.583568469Z",
         "Path": "/bin/bash",
         "Args": [
-        
-        ],
+         ],
         "Config": {
             "Hostname": "633710bf0be6",
             "Domainname": "",
