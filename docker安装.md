@@ -6,13 +6,13 @@
   sudo apt-get install -y lxc-docker
 
 ##2.新建虚拟机（容器）
-  ###1.搜索虚拟机，这是从docker hub中搜的
+###1.搜索虚拟机，这是从docker hub中搜的
   命令如下：
   docker search [虚拟机名称]
   如搜索debian系统的虚拟机：
     docker search debian|less
   
-  ###2.下载一个debian虚拟机
+###2.下载一个debian虚拟机
     我下载的是kelseyhightower/debian虚拟机
     docker pull kelseyhightower/debian
  
@@ -165,7 +165,7 @@
           2.layers   层描述信息，文件可以看到层次关系
           3.mnt     挂载的系统，下面都是以ID号命名的文件夹，有的内部为具体的系统结构      
      
-    ###3.运行此虚拟机
+###3.运行此虚拟机
     docker run -i -t kelseyhightower/debian:7.2 /bin/bash
     1.容器的配置文件夹的命名
         1.它在/var/lib/docker/contains下，
