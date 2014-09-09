@@ -30,7 +30,7 @@
   * 4.持续部署系统
   * 5.私有PaaS技术
   * 6.面向服务的体系结构
-注意及延伸：
-    ** 1.IaaS:是Infrastructure as a Service，基础设施即服务，消费者通过Internet 可以从完善的计算机基础设施获得服务。例如AWS，OpenStack，CloudStack提供的虚拟机计算服务。通过互联网就可以获得有计算能力的服务器，不需要实际的服务器资源。
-    ** 2.PaaS:是Platform-as-a-Service的缩写，意思是平台即服务。
-    ** 3.SaaS:是Software-as-a-service，国内通常叫做软件运营服务模式，简称为软营模式.提供的是软件服务，例如Office365等，通过互联网就直接能使用这个软件应用，不需要本地安装。
+  * 注意及延伸：
+    * 1.IaaS:是Infrastructure as a Service，基础设施即服务，消费者通过Internet 可以从完善的计算机基础设施获得服务。例如AWS，OpenStack，CloudStack提供的虚拟机计算服务。通过互联网就可以获得有计算能力的服务器，不需要实际的服务器资源。
+    * 2.PaaS:是Platform-as-a-Service的缩写，意思是平台即服务。
+    * 3.SaaS:是Software-as-a-service，国内通常叫做软件运营服务模式，简称为软营模式.提供的是软件服务，例如Office365等，通过互联网就直接能使用这个软件应用，不需要本地安装。
