@@ -11,7 +11,9 @@
   docker search [虚拟机名称]
   如搜索debian系统的虚拟机：
     docker search debian|less
-  
+  注意：此search命令显示的时候，没有tags标记，如果仓库中有好几个版本，不带tags下载，是把所有版本的都下载。最好通过docker官网搜索仓库（官网地址：https://registry.hub.docker.com/）可看tags标记（版本号），再下载。
+  如下载docker开发环境1.2.0，使用命令为：
+  	docker pull docker-dev:1.2.0
   2.下载一个debian虚拟机
     我下载的是kelseyhightower/debian虚拟机
     docker pull kelseyhightower/debian
